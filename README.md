@@ -34,7 +34,7 @@ Then set these values in your **.env** file:
 MAIL_MAILER=zeptomail
 
 ZEPTOMAIL_TOKEN="your-send-mail-token"
-ZEPTOMAIL_HOST=zoho.com
+ZEPTOMAIL_HOST=api.zeptomail.com
 
 MAIL_FROM_ADDRESS=invoice@zylker.com
 MAIL_FROM_NAME="App Name"
@@ -43,7 +43,7 @@ MAIL_FROM_NAME="App Name"
 | Variable | Description |
 | --- | --- |
 | `ZEPTOMAIL_TOKEN` | The **Send Mail token** from your ZeptoMail Mail Agent (**Mail Agents → SMTP/API → API**). You can paste it with or without the `Zoho-enczapikey ` prefix. |
-| `ZEPTOMAIL_HOST` | The Zoho data centre your account is in: `zoho.com` (default), `zoho.eu`, `zoho.in`, `zoho.com.cn`, `zoho.com.au`, `zoho.jp`, `zohocloud.ca` or `zoho.sa`. |
+| `ZEPTOMAIL_HOST` | The ZeptoMail API hostname for your account, e.g. `api.zeptomail.com` or `api.zeptomail.eu` (shown on your Mail Agent's setup page). For backwards compatibility you can also give a Zoho data centre, `zoho.com` (default), `zoho.eu`, `zoho.in`, `zoho.com.cn`, `zoho.com.au`, `zoho.jp`, `zohocloud.ca` or `zoho.sa`, which sends to `zeptomail.<data centre>`. |
 | `ZEPTOMAIL_TIMEOUT` | How many seconds to wait for the ZeptoMail API before giving up. Default: `30`. |
 
 You can also set `api_key`, `host` and `timeout` on the mailer entry in **config/mail.php**. Those values override the package config. This is useful if you send from more than one Mail Agent.

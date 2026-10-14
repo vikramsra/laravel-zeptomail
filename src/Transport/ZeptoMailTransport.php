@@ -18,7 +18,7 @@ use Symfony\Component\Mime\Part\DataPart;
 class ZeptoMailTransport extends AbstractTransport
 {
     /**
-     * Supported Zoho data centres, mapped to the ZeptoMail API domain.
+     * Zoho data centres accepted as ZEPTOMAIL_HOST, mapped to the legacy "zeptomail.<data centre>" API host.
      */
     public const HOSTS = [
         'zoho.com',
@@ -56,16 +56,8 @@ class ZeptoMailTransport extends AbstractTransport
             throw new InvalidArgumentException('ZeptoMail API token is missing. Set ZEPTOMAIL_TOKEN in your .env file.');
         }
 
-        if (! in_array($host, self::HOSTS, true)) {
-            throw new InvalidArgumentException(sprintf(
-                'Invalid ZeptoMail host "%s". Set ZEPTOMAIL_HOST to one of: %s.',
-                $host,
-                implode(', ', self::HOSTS)
-            ));
-        }
-
         $this->apiKey = stripos($apiKey, trim(self::AUTH_PREFIX)) === 0 ? $apiKey : self::AUTH_PREFIX.$apiKey;
-        $this->host = $host;
+        $this->host = $this->resolveHost($host);
         $this->timeout = $timeout;
         $this->client = $client ?? new HttpClient();
     }
@@ -118,7 +110,34 @@ class ZeptoMailTransport extends AbstractTransport
 
     protected function getEndpoint(): string
     {
-        return 'https://zeptomail.'.$this->host.'/v1.1/email';
+        return 'https://'.$this->host.'/v1.1/email';
+    }
+
+    /**
+     * Accept either a Zoho data centre (e.g. "zoho.eu", mapped to "zeptomail.zoho.eu") or
+     * the API hostname itself (e.g. "api.zeptomail.com", optionally with an https:// prefix).
+     */
+    protected function resolveHost(string $host): string
+    {
+        $host = strtolower(trim($host));
+
+        if (in_array($host, self::HOSTS, true)) {
+            return 'zeptomail.'.$host;
+        }
+
+        if (strpos($host, 'https://') === 0) {
+            $host = rtrim(substr($host, strlen('https://')), '/');
+        }
+
+        if (strpos($host, '.') === false || filter_var($host, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME) === false) {
+            throw new InvalidArgumentException(sprintf(
+                'Invalid ZeptoMail host "%s". Set ZEPTOMAIL_HOST to an API hostname such as api.zeptomail.com, or to one of: %s.',
+                $host,
+                implode(', ', self::HOSTS)
+            ));
+        }
+
+        return $host;
     }
 
     protected function getPayload(Email $email, Envelope $envelope): array

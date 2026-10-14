@@ -151,12 +151,48 @@ class ZeptoMailTransportTest extends TestCase
             ->send($this->email()->text('Hi'));
     }
 
-    public function test_it_rejects_an_unknown_host(): void
+    /**
+     * @dataProvider hostProvider
+     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('hostProvider')]
+    public function test_it_resolves_the_api_host(string $host, string $endpoint): void
+    {
+        $this->transport([$this->okResponse()], $host)->send($this->email()->text('Hi'));
+
+        $this->assertSame($endpoint, (string) $this->history[0]['request']->getUri());
+    }
+
+    public static function hostProvider(): array
+    {
+        return [
+            'data centre' => ['zoho.in', 'https://zeptomail.zoho.in/v1.1/email'],
+            'api hostname' => ['api.zeptomail.com', 'https://api.zeptomail.com/v1.1/email'],
+            'regional api hostname' => ['api.zeptomail.eu', 'https://api.zeptomail.eu/v1.1/email'],
+            'https url' => [' https://API.zeptomail.com/ ', 'https://api.zeptomail.com/v1.1/email'],
+        ];
+    }
+
+    /**
+     * @dataProvider invalidHostProvider
+     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('invalidHostProvider')]
+    public function test_it_rejects_an_invalid_host(string $host): void
     {
         $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('Invalid ZeptoMail host "zoho.xyz"');
+        $this->expectExceptionMessage('Invalid ZeptoMail host');
 
-        new ZeptoMailTransport('secret', 'zoho.xyz');
+        new ZeptoMailTransport('secret', $host);
+    }
+
+    public static function invalidHostProvider(): array
+    {
+        return [
+            'empty' => [''],
+            'no dot' => ['localhost'],
+            'plain http' => ['http://api.zeptomail.com'],
+            'with path' => ['https://api.zeptomail.com/v1.1/email'],
+            'spaces' => ['api zeptomail.com'],
+        ];
     }
 
     public function test_it_rejects_an_empty_token(): void
