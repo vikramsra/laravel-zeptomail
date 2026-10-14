@@ -1,57 +1,85 @@
-**Laravel Zoho ZeptoMail readme**
+# Laravel ZeptoMail
 
-**Pre-requisites**
+A [Zoho ZeptoMail](https://www.zoho.com/zeptomail/) mail transport for Laravel.
 
-1.  Zoho ZeptoMail application with verified domain.
-    
-2.  Laravel v9.0 and above.
-    
+Based on the original ZeptoMail Laravel driver by Zoho Mail.
 
-**Installation and configuration**
+## Requirements
 
-You can add ZeptoMail driver to send emails from your Laravel application. As a first step, you should install ZeptoMail.
+- PHP 8.0 or later
+- Laravel 9, 10, 11, 12 or 13
+- A ZeptoMail account with a verified sending domain
 
-Navigate to the application's root folder and paste the following code.
+## Installation
 
-```composer require vikramsra/laravel-zeptomail:dev-main```
-
-Next, you should set ZeptoMail as a mail transport. Follow the steps given [in this section](https://laravel.com/docs/10.x/mail#custom-transports) to add and define a custom transport. Next, you can add the mailer definition within your application's **config/mail.php** configuration file
-
-```'zeptomail' => ['transport' => 'zeptomail',],```
-
-Once you configure mail transport, add the following parameters in the **.env file** of your Laravel application.
-
-Add ZeptoMail's API token in the .env file using the following command. Copy the Send Mail token from the desired Mail Agent and paste it in this column.
-
+```bash
+composer require vikramsra/laravel-zeptomail
 ```
+
+The service provider is registered automatically through package discovery, and it registers the `zeptomail` transport for you.
+
+## Configuration
+
+Add a mailer to the `mailers` array in **config/mail.php**:
+
+```php
+'zeptomail' => [
+    'transport' => 'zeptomail',
+],
+```
+
+Then set these values in your **.env** file:
+
+```dotenv
+MAIL_MAILER=zeptomail
+
+ZEPTOMAIL_TOKEN="your-send-mail-token"
 ZEPTOMAIL_HOST=zoho.com
-ZEPTOMAIL_TOKEN="SEND_MAIL_TOKEN"
-```
 
-Set the **MAIL\_MAILER** variable to ZeptoMail.
-
-```MAIL_MAILER=zeptomail```
-
-Add the FROM address available in the .env file
-
-```
-MAIL_FROM_ADDRESS=invoice@zylker.com 
+MAIL_FROM_ADDRESS=invoice@zylker.com
 MAIL_FROM_NAME="App Name"
 ```
-**Sending test email**
 
-You can check the configuration by sending a test email. You can use the Tinker configuration to do so.
+| Variable | Description |
+| --- | --- |
+| `ZEPTOMAIL_TOKEN` | The **Send Mail token** from your ZeptoMail Mail Agent (**Mail Agents → SMTP/API → API**). You can paste it with or without the `Zoho-enczapikey ` prefix. |
+| `ZEPTOMAIL_HOST` | The Zoho data centre your account is in: `zoho.com` (default), `zoho.eu`, `zoho.in`, `zoho.com.cn`, `zoho.com.au`, `zoho.jp`, `zohocloud.ca` or `zoho.sa`. |
+| `ZEPTOMAIL_TIMEOUT` | How many seconds to wait for the ZeptoMail API before giving up. Default: `30`. |
 
-Open your command prompt / terminal and enter the following commands.
+You can also set `api_key`, `host` and `timeout` on the mailer entry in **config/mail.php**. Those values override the package config. This is useful if you send from more than one Mail Agent.
 
-Launch the tinker environment.
+To publish the config file:
 
-```php artisan tinker```
+```bash
+php artisan vendor:publish --tag=zeptomail-config
+```
 
-Next, execute the following email-sending command
+## Features
 
-```Mail::raw('This is a test email', function ($message) { $message->to('test@email.com') ->subject('Testing Laravel'); });```
+- To, CC, BCC and Reply-To recipients
+- HTML and plain-text bodies
+- Attachments, plus inline images added with `$message->embed()`
+- Custom headers, sent as ZeptoMail `mime_headers`
+- ZeptoMail's `request_id` is used as the sent message's ID
+- Errors throw Symfony's `TransportException`, so the transport works with Laravel's `failover` and `roundrobin` mailers
 
-Enter the relevant email address in the **to** field.
+## Sending a test email
 
-Once you execute the command, go to the to address to check your configuration.
+```bash
+php artisan tinker
+```
+
+```php
+Mail::raw('This is a test email', fn ($message) => $message->to('test@example.com')->subject('Testing Laravel'));
+```
+
+## Testing
+
+```bash
+composer install
+composer test
+```
+
+## License
+
+MIT

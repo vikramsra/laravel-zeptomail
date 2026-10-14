@@ -1,33 +1,52 @@
 {
     "name": "vikramsra/laravel-zeptomail",
-    "description": "Custom Mail Driver Plugin for Laravel",
+    "description": "Zoho ZeptoMail mail transport for Laravel",
     "type": "library",
     "keywords": [
         "ZeptoMail",
         "ZOHO",
         "email",
         "transactional",
-        "laravel-driver"
+        "laravel",
+        "mail-driver"
     ],
     "license": "MIT",
+    "authors": [
+        {
+            "name": "Vikramjeet Singh Sra",
+            "email": "vikramjeet.sra@gmail.com"
+        },
+        {
+            "name": "Zoho Mail",
+            "email": "zmintegration@zohomail.com",
+            "role": "Original author"
+        }
+    ],
+    "require": {
+        "php": "^8.0",
+        "ext-json": "*",
+        "guzzlehttp/guzzle": "^7.2",
+        "illuminate/mail": "^9.0 || ^10.0 || ^11.0 || ^12.0 || ^13.0",
+        "illuminate/support": "^9.0 || ^10.0 || ^11.0 || ^12.0 || ^13.0",
+        "symfony/mailer": "^6.0 || ^7.0 || ^8.0",
+        "symfony/mime": "^6.0 || ^7.0 || ^8.0"
+    },
+    "require-dev": {
+        "orchestra/testbench": "^7.0 || ^8.0 || ^9.0 || ^10.0 || ^11.0",
+        "phpunit/phpunit": "^9.5 || ^10.0 || ^11.0 || ^12.0"
+    },
     "autoload": {
         "psr-4": {
             "ZohoMail\\LaravelZeptoMail\\": "src/"
         }
     },
-    "authors": [
-        {
-            "name": "Zoho Mail",
-            "email": "zmintegration@zohomail.com"
+    "autoload-dev": {
+        "psr-4": {
+            "ZohoMail\\LaravelZeptoMail\\Tests\\": "tests/"
         }
-    ],
-    "require": {
-        "php": ">=8.0",
-        "ext-json": "*",
-        "illuminate/support": "^9.0 || ^10.0  || ^11.0 || ^12.0 || ^13.0",
-        "nyholm/psr7": "^1.5",
-        "php-http/guzzle7-adapter": "^1.0",
-        "symfony/mailer": "^6.0 || ^7.0"
+    },
+    "scripts": {
+        "test": "phpunit"
     },
     "extra": {
         "laravel": {
@@ -35,5 +54,10 @@
                 "ZohoMail\\LaravelZeptoMail\\LaravelDriverServiceProvider"
             ]
         }
-    }
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
 }

@@ -1,0 +1,41 @@
+name: tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { php: '8.0', laravel: '^9.0', testbench: '^7.0' }
+          - { php: '8.1', laravel: '^10.0', testbench: '^8.0' }
+          - { php: '8.2', laravel: '^11.0', testbench: '^9.0' }
+          - { php: '8.3', laravel: '^12.0', testbench: '^10.0' }
+          - { php: '8.4', laravel: '^13.0', testbench: '^11.0' }
+          - { php: '8.5', laravel: '^13.0', testbench: '^11.0' }
+
+    name: PHP ${{ matrix.php }} / Laravel ${{ matrix.laravel }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          coverage: none
+
+      - name: Install dependencies
+        run: |
+          # Older Laravel releases have published security advisories; allow them for testing only.
+          composer config audit.block-insecure false
+          composer require --dev --no-interaction --no-update "laravel/framework:${{ matrix.laravel }}" "orchestra/testbench:${{ matrix.testbench }}"
+          composer update --no-interaction --prefer-dist --with-all-dependencies
+
+      - name: Run tests
+        run: vendor/bin/phpunit
